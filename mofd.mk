@@ -23,6 +23,13 @@ $(call inherit-product-if-exists, frameworks/native/build/phone-xxhdpi-2048-hwui
 DEVICE_PACKAGE_OVERLAYS := \
     device/asus/mofd-common/overlay
 
+#APPS
+PRODUCT_PACKAGES += \
+    FileManager \
+    DSPmanager \
+    Gello \
+    Launcher2 
+
 # Art
 PRODUCT_PROPERTY_OVERRIDES += \
     dalvik.vm.dex2oat-swap=false
@@ -162,6 +169,7 @@ PRODUCT_PACKAGES += \
 PRODUCT_PACKAGES += \
     libwrs_omxil_common \
     libwrs_omxil_core_pvwrapped \
+    libOMXVideoDecoderAVC \
     libOMXVideoDecoderH263 \
     libOMXVideoDecoderMPEG4 \
     libOMXVideoDecoderWMV \
@@ -296,6 +304,8 @@ $(call inherit-product-if-exists, hardware/broadcom/wlan/bcmdhd/firmware/bcm4339
 # specific management of sep_policy.conf
 PRODUCT_COPY_FILES += \
     device/asus/mofd-common/sep_policy.conf:system/etc/security/sep_policy.conf
+    
+
 
 # hardware optimizations
 #PRODUCT_PROPERTY_OVERRIDES += \

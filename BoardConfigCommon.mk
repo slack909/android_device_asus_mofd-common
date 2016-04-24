@@ -20,6 +20,7 @@ TARGET_CPU_ABI := x86
 TARGET_CPU_ABI2 := armeabi-v7a
 TARGET_CPU_ABI_LIST := x86,armeabi-v7a,armeabi
 TARGET_CPU_ABI_LIST_32_BIT := x86,armeabi-v7a,armeabi
+TARGET_CPU_SMP := true
 TARGET_KERNEL_CROSS_COMPILE_PREFIX := x86_64-linux-android-
 TARGET_BOARD_PLATFORM := moorefield
 TARGET_BOOTLOADER_BOARD_NAME := moorefield
@@ -36,7 +37,6 @@ BOARD_FUNCTIONFS_HAS_SS_COUNT := true
 # Audio
 BOARD_USES_ALSA_AUDIO := true
 BOARD_USES_TINY_ALSA_AUDIO := true
-TARGET_TINY_ALSA_IGNORE_SILENCE_SIZE := true
 
 # Binder API version
 TARGET_USES_64_BIT_BINDER := true
@@ -53,13 +53,10 @@ TARGET_BOOTLOADER_IS_2ND := true
 # Camera
 INTEL_USE_CAMERA_UVC := true
 INTEL_VIDEO_XPROC_SHARING := true
-COMMON_GLOBAL_CFLAGS += -DCAMERA_VENDOR_L_COMPAT
-TARGET_PROVIDES_CAMERA_HAL := true
 
 # Charger
 BOARD_CHARGER_ENABLE_SUSPEND := true
 BOARD_CHARGER_SHOW_PERCENTAGE := true
-BOARD_HEALTHD_CUSTOM_CHARGER_RES := device/asus/mofd-common/charger/images
 
 # Dex-preoptimization: Speeds up initial boot (if we ever o a user build, which we don't)
 ifeq ($(HOST_OS),linux)
@@ -74,7 +71,7 @@ endif
 BOARD_HARDWARE_CLASS := device/asus/mofd-common/cmhw
 
 # Healthd
-BOARD_HAL_STATIC_LIBRARIES := libhealthd.moorefield
+BOARD_HAL_STATIC_LIBRARIES += libhealthd.mofd_v1
 
 # Houdini: enable ARM codegen for x86
 BUILD_ARM_FOR_X86 := true
@@ -84,7 +81,6 @@ BOARD_GFX_REV := RGX6400
 ENABLE_IMG_GRAPHICS := true
 ENABLE_MRFL_GRAPHICS := true
 INTEL_HWC_MOOREFIELD := true
-COMMON_GLOBAL_CFLAGS += -DASUS_ZENFONE2_LP_BLOBS
 HWUI_IMG_FBO_CACHE_OPTIM := true
 TARGET_INTEL_HWCOMPOSER_FORCE_ONLY_ONE_RGB_LAYER := true
 
@@ -95,7 +91,17 @@ SF_VSYNC_EVENT_PHASE_OFFSET_NS := 5000000
 BOARD_EGL_CFG := device/asus/mofd-common/configs/egl.cfg
 
 ADDITIONAL_DEFAULT_PROPERTIES += \
-    ro.opengles.version = 196608
+    ro.opengles.version = 196608 \
+    ro.hwui.drop_shadow_cache_size = 6 \
+    ro.hwui.gradient_cache_size = 1 \
+    ro.hwui.layer_cache_size = 48 \
+    ro.hwui.path_cache_size = 32 \
+    ro.hwui.text_large_cache_width = 2048 \
+    ro.hwui.text_large_cache_height = 1024 \
+    ro.hwui.text_small_cache_width = 1024 \
+    ro.hwui.text_small_cache_height = 1024 \
+    ro.hwui.texture_cache_flushrate = 0.4 \
+    ro.hwui.texture_cache_size = 72 \
 
 MAX_EGL_CACHE_ENTRY_SIZE := 65536
 MAX_EGL_CACHE_SIZE := 1048576
@@ -110,12 +116,8 @@ BOARD_USES_VIDEO := true
 # enabled to carry out all drawing operations performed on a View's canvas with GPU for 2D rendering pipeline.
 USE_OPENGL_RENDERER := true
 
-# Disable an optimization that causes rendering issues for us
-TARGET_REQUIRES_SYNCHRONOUS_SETSURFACE := true
-
 # Init
-TARGET_INIT_VENDOR_LIB := libinit_mofd
-TARGET_LIBINIT_DEFINES_FILE := device/asus/mofd-common/init/init_mofd.cpp
+TARGET_IGNORE_RO_BOOT_SERIALNO := true
 
 # Inline kernel building
 TARGET_KERNEL_SOURCE := kernel/asus/moorefield
@@ -125,13 +127,12 @@ TARGET_KERNEL_CONFIG := cyanogenmod_zenfone2_defconfig
 
 # Kernel cmdline
 BOARD_KERNEL_CMDLINE := init=/init pci=noearly loglevel=0 vmalloc=256M androidboot.hardware=mofd_v1 watchdog.watchdog_thresh=60 androidboot.spid=xxxx:xxxx:xxxx:xxxx:xxxx:xxxx androidboot.serialno=01234567890123456789 snd_pcm.maximum_substreams=8 ip=50.0.0.2:50.0.0.1::255.255.255.0::usb0:on debug_locks=0 n_gsm.mux_base_conf=\"ttyACM0,0 ttyXMM0,1\"
-#BOARD_KERNEL_CMDLINE += androidboot.selinux=permissive
+BOARD_KERNEL_CMDLINE += androidboot.selinux=permissive
 
 # Lights
 TARGET_PROVIDES_LIBLIGHT := true
 
 # Media
-TARGET_NUPLAYER_CANNOT_SET_SURFACE_WITHOUT_A_FLUSH := true
 BOARD_USES_WRS_OMXIL_CORE := true
 BOARD_USES_MRST_OMX := true
 USE_HW_VP8 := true
@@ -159,31 +160,52 @@ BOARD_CACHEIMAGE_FILE_SYSTEM_TYPE := ext4
 BOARD_SYSTEMIMAGE_PARTITION_SIZE := 2415919104
 BOARD_FLASH_BLOCK_SIZE := 2048
 BOARD_BOOTIMAGE_PARTITION_SIZE := 16777216
-BOARD_RECOVERYIMAGE_PARTITION_SIZE := 1677721600
+BOARD_RECOVERYIMAGE_PARTITION_SIZE := 16777216
 BOARD_CACHEIMAGE_PARTITION_SIZE := 268435456
 
 # PowerHAL
 TARGET_POWERHAL_VARIANT := mofd_v1
 
 # Radio
-BOARD_PROVIDES_LIBRIL := true
+BOARD_RIL_SUPPORTS_MULTIPLE_CLIENTS := true
+BOARD_RIL_CLASS := ../../../device/asus/mofd-common/ril
 
 # Recovery
-BOARD_CANT_BUILD_RECOVERY_FROM_BOOT_PATCH := true
-TARGET_RECOVERY_PIXEL_FORMAT := "BGRA_8888"
+TARGET_RECOVERY_PIXEL_FORMAT := "RGBX_8888"
 COMMON_GLOBAL_CFLAGS += -DNO_SECURE_DISCARD
 TARGET_RECOVERY_FSTAB := device/asus/mofd-common/rootdir/etc/fstab.mofd_v1
-TARGET_RECOVERY_DEVICE_MODULES := libinit_mofd librecovery_updater_mofd intel_prop thermald
+TARGET_RECOVERY_DEVICE_MODULES := librecovery_updater_mofd
 
 # Security
 BUILD_WITH_SECURITY_FRAMEWORK := chaabi_token
 BUILD_WITH_CHAABI_SUPPORT := true
 
 # SELinux
-BOARD_SEPOLICY_DIRS += device/asus/mofd-common/sepolicy
-
-# Tap-to-Wake
-TARGET_TAP_TO_WAKE_NODE := "/sys/devices/pci0000:00/0000:00:09.2/i2c-7/7-0038/ftsdclickmode"
+BOARD_SEPOLICY_DIRS := device/asus/mofd-common/sepolicy
+BOARD_SEPOLICY_UNION := \
+    bd_prov.te \
+    bluetooth.te \
+    dhcp.te \
+    dumpstate.te \
+    file.te \
+    gpsd.te \
+    init.te \
+    init_shell.te \
+    mediaserver.te \
+    netd.te \
+    property.te \
+    pvrsrvctl.te \
+    sensorhubd.te \
+    surfaceflinger.te \
+    system_app.te \
+    system_server.te \
+    wpa.te \
+    shell.te \
+    sepfs.te \
+    file_contexts \
+    genfs_contexts \
+    property_contexts \
+    service_contexts
 
 # Wifi
 BOARD_WLAN_DEVICE           := bcmdhd
@@ -192,7 +214,6 @@ BOARD_HOSTAPD_PRIVATE_LIB   := lib_driver_cmd_$(BOARD_WLAN_DEVICE)
 WPA_SUPPLICANT_VERSION      := VER_0_8_X
 BOARD_WPA_SUPPLICANT_DRIVER := NL80211
 BOARD_HOSTAPD_DRIVER        := NL80211
-CONFIG_HS20                 := true
 WIFI_DRIVER_FW_PATH_PARAM   := "/sys/module/bcmdhd/parameters/firmware_path"
 WIFI_DRIVER_FW_PATH_AP      := "/system/etc/firmware/fw_bcmdhd_apsta.bin"
 WIFI_DRIVER_FW_PATH_STA     := "/system/etc/firmware/fw_bcmdhd.bin"

@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 
+#include <healthd.h>
 #include <cutils/properties.h>
 
 #define SHUTDOWN_PROP "init.shutdown_to_charging"
@@ -31,7 +32,7 @@ void healthd_board_mode_charger_draw_battery(struct android::BatteryProperties *
 int healthd_board_battery_update(struct android::BatteryProperties *props)
 {
     bool new_is_connected = props->chargerAcOnline | props->chargerUsbOnline |
-            props->chargerWirelessOnline | props->chargerAcOnline;
+            props->chargerWirelessOnline | props->chargerDockAcOnline;
     if (new_is_connected != charger_is_connected) {
         charger_is_connected = new_is_connected;
         property_set(SHUTDOWN_PROP, charger_is_connected ? "1" : "0");
